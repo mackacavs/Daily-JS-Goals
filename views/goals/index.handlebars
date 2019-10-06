@@ -1,0 +1,20 @@
+{{#each goals}}
+<div class="container row">
+  <div class="card card-body mb-2 col-md-8 offset-md-2">
+    Objective:
+    <h4>{{objective}}</h4>
+    Description:
+    <h6>{{description}}</h6>
+    How to complete it?
+    <h6>{{howToComplete}}</h6>
+    <h6>{{date}}</h6>
+    <a class="btn btn-block" href="/goals/edit/{{_id}}">Edit Goal</a>
+    <form action="/goals/{{_id}}?_method=DELETE" method="post">
+      <input type="hidden" name="_method" value="DELETE">
+      <input type="submit" class="btn btn-block" value="Delete">
+    </form>
+  </div>
+</div>
+{{else}}
+<p>No Current Goals</p>
+{{/each}}

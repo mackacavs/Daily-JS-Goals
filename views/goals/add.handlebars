@@ -1,0 +1,27 @@
+{{#each errors}}
+<div class="alert alert-danger">{{text}}</div>
+
+{{else}}
+
+{{/each}}
+<form method="post" action="/goals">
+  <div class="row">
+    <div class="form-group col-md-6 offset-md-3">
+      <label for="objective">Objective</label>
+      <input type="text" class="form-control" id="objective" name="objective" placeholder="Add Objective" value="{{objective}}">
+    </div>
+    <div class="form-group col-md-6 offset-md-3">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" name="description" class="form-control" rows="5" cols="52"
+        placeholder="Description...">{{description}}</textarea>
+    </div>
+
+    <div class="form-group col-md-6 offset-md-3">
+      <label for="how">How?</label>
+      <input type="text" class="form-control" id="how" name="how" value="{{howToComplete}}" placeholder="How are you going to compelte the task?">
+    </div>
+
+    <button type="submit" style="width: 100px" class="btn btn-sm btn-primary col-md-6 offset-md-3">Submit</button>
+
+  </div>
+</form>
