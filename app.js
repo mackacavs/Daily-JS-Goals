@@ -1,10 +1,14 @@
 const express = require('express');
 const exphbs = require('express-handlebars');
 const mongoose = require('mongoose');
+const session = require('express-session')
 const bodyParser = require('body-parser');
-var methodOverride = require('method-override');
+const methodOverride = require('method-override');
+const bcrypt = require('bcryptjs')
 
 const app = express();
+
+const port = 5000;
 
 mongoose.connect('mongodb://localhost/jsToLearn', {
   useNewUrlParser: true,
@@ -17,19 +21,24 @@ mongoose.connect('mongodb://localhost/jsToLearn', {
 require('./models/Goal');
 const Goal = mongoose.model('goals')
 
+require('./models/User');
+const User = mongoose.model('users')
+
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 app.use(methodOverride('_method'))
 
-
+app.use(session({
+  secret: 'secret',
+  resave: true,
+  saveUninitialized: true
+}))
 
 app.engine('handlebars', exphbs({
   defaultLayout: 'main'
 }));
 app.set('view engine', 'handlebars');
-
-const port = 5000;
 
 app.get('/', (req, res) => {
   res.render('index')
@@ -44,7 +53,6 @@ app.get('/goals/edit/:id', (req, res) => {
     _id: req.params.id
   })
     .then(goal => {
-      console.log(goal)
       res.render('goals/edit', {
         goal: goal
       })
@@ -118,6 +126,44 @@ app.delete('/goals/:id', (req, res) => {
     })
 })
 
+app.get('/users/login', (req, res) => {
+  res.render('users/login')
+})
+
+app.get('/users/register', (req, res) => {
+  res.render('users/register')
+})
+
+
+app.post('/users/register', (req, res) => {
+  errors = []
+  console.log(req.body)
+  if (req.body.password != req.body.passwordConfirm) {
+    errors.push({ text: "Your passwords don't match" })
+  }
+
+  if (errors.length === 0) {
+    const newUser = {
+      email: req.body.email,
+      password: req.body.password
+    }
+    new User(newUser)
+      .save()
+      .then(user => {
+        res.redirect('/goals/index')
+      })
+  } else {
+    res.render('users/register', {
+      errors: errors,
+      email: req.body.email,
+      password: req.body.password,
+      password: req.body.passwordConfirm
+    })
+
+  }
+
+
+})
 
 app.listen(port, () => {
   console.log(`App is listening on port ${port}`)

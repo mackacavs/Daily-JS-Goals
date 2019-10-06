@@ -1,13 +1,14 @@
 {{#each goals}}
 <div class="container row">
   <div class="card card-body mb-2 col-md-8 offset-md-2">
-    Objective:
+    <p style="font-size: 0.9rem; margin-bottom: 0">Objective:</p>
     <h4>{{objective}}</h4>
-    Description:
+    <p style="font-size: 0.9rem; margin-bottom: 0">Description:</p>
     <h6>{{description}}</h6>
-    How to complete it?
+    <p style="font-size: 0.9rem; margin-bottom: 0">How To Complete It:</p>
     <h6>{{howToComplete}}</h6>
-    <h6>{{date}}</h6>
+    <br />
+    <h6 class="ml-auto">{{date}}</h6>
     <a class="btn btn-block" href="/goals/edit/{{_id}}">Edit Goal</a>
     <form action="/goals/{{_id}}?_method=DELETE" method="post">
       <input type="hidden" name="_method" value="DELETE">
@@ -16,5 +17,5 @@
   </div>
 </div>
 {{else}}
-<p>No Current Goals</p>
+<p>No Current Goals - why don't you <a href="/goals/add">add some?</a></p>
 {{/each}}
