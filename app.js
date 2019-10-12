@@ -218,6 +218,15 @@ app.post('/users/login', (req, res, next) => {
   })(req, res, next)
 })
 
+app.get('/users/logout', (req, res) => {
+  req.logout();
+  req.flash('success_msg', 'You have logged out')
+  res.redirect('/users/login')
+});
+
+
+
+
 app.listen(port, () => {
   console.log(`App is listening on port ${port}`)
 })
