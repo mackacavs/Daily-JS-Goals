@@ -6,7 +6,9 @@ const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
-const flash = require('connect-flash')
+const flash = require('connect-flash');
+
+const { ensureAuthenticated } = require('./helpers/auth');
 
 const app = express();
 
@@ -42,7 +44,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-
 app.use(flash());
 
 app.use(function (req, res, next) {
@@ -62,11 +63,11 @@ app.get('/', (req, res) => {
   res.render('index')
 });
 
-app.get('/goals/add', (req, res) => {
+app.get('/goals/add', ensureAuthenticated, (req, res) => {
   res.render('goals/add')
 });
 
-app.get('/goals/edit/:id', (req, res) => {
+app.get('/goals/edit/:id', ensureAuthenticated, (req, res) => {
   Goal.findOne({
     _id: req.params.id
   })
@@ -77,8 +78,8 @@ app.get('/goals/edit/:id', (req, res) => {
     })
 });
 
-app.get('/goals/index', (req, res) => {
-  Goal.find().sort()
+app.get('/goals/index', ensureAuthenticated, (req, res) => {
+  Goal.find({ user: req.user.id }).sort()
     .then(goals => {
       res.render('goals/index', {
         goals: goals
@@ -86,7 +87,7 @@ app.get('/goals/index', (req, res) => {
     })
 });
 
-app.post('/goals', (req, res) => {
+app.post('/goals', ensureAuthenticated, (req, res) => {
   errors = []
   if (!req.body.objective) {
     errors.push({ text: "Please enter an objective" })
@@ -104,7 +105,8 @@ app.post('/goals', (req, res) => {
     const newObjective = {
       objective: req.body.objective,
       description: req.body.description,
-      howToComplete: req.body.how
+      howToComplete: req.body.how,
+      user: req.user.id
     }
     new Goal(newObjective)
       .save()
@@ -121,7 +123,7 @@ app.post('/goals', (req, res) => {
   }
 });
 
-app.put('/goals/:id', (req, res) => {
+app.put('/goals/:id', ensureAuthenticated, (req, res) => {
   Goal.findOne({
     _id: req.params.id
   })
@@ -137,7 +139,7 @@ app.put('/goals/:id', (req, res) => {
     })
 })
 
-app.delete('/goals/:id', (req, res) => {
+app.delete('/goals/:id', ensureAuthenticated, (req, res) => {
   Goal.deleteOne({ _id: req.params.id })
     .then(() => {
       req.flash('success_msg', 'Goal deleted')

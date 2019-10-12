@@ -14,6 +14,10 @@ const Goal = new Schema({
     type: String,
     required: true
   },
+  user: {
+    type: String,
+    required: true
+  },
   date: {
     type: String,
     default: new Date().toDateString()
