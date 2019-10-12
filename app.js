@@ -5,6 +5,7 @@ const session = require('express-session')
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const bcrypt = require('bcryptjs')
+const passport = require('passport')
 
 const app = express();
 
@@ -134,35 +135,60 @@ app.get('/users/register', (req, res) => {
   res.render('users/register')
 })
 
-
 app.post('/users/register', (req, res) => {
-  errors = []
-  console.log(req.body)
+  let errors = [];
+
   if (req.body.password != req.body.passwordConfirm) {
-    errors.push({ text: "Your passwords don't match" })
+    errors.push({ text: "The passwords don't match" })
   }
 
-  if (errors.length === 0) {
-    const newUser = {
-      email: req.body.email,
-      password: req.body.password
-    }
-    new User(newUser)
-      .save()
-      .then(user => {
-        res.redirect('/goals/index')
-      })
-  } else {
+  if (req.body.password.length < 6) {
+    errors.push({ text: "The password is too short" })
+  }
+
+  if (errors.length > 0) {
+
     res.render('users/register', {
       errors: errors,
       email: req.body.email,
       password: req.body.password,
-      password: req.body.passwordConfirm
+      password2: req.body.passwordConfirm
     })
-
+  } else {
+    User.findOne({ email: req.body.email })
+      .then(user => {
+        if (user) {
+          errors.push({ text: "That email has already been used" })
+          res.render('users/register', {
+            errors: errors,
+            email: req.body.email,
+            password: req.body.password,
+            password2: req.body.password2
+          })
+        } else {
+          const newUser = new User({
+            email: req.body.email,
+            password: req.body.password
+          })
+          bcrypt.genSalt(10, (err, salt) => {
+            bcrypt.hash(newUser.password, salt, (err, hash) => {
+              if (err) throw err;
+              newUser.password = hash;
+              newUser.save()
+                .then(user => {
+                  console.log("Hello")
+                  console.log(user)
+                  res.redirect('/users/login')
+                })
+                .catch(err => {
+                  console.log(err)
+                  return;
+                })
+            });
+          })
+        }
+      })
   }
-
-
 })
 
 app.listen(port, () => {

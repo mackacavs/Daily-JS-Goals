@@ -10,7 +10,6 @@ const User = new Schema({
     type: String,
     required: true
   },
-
 });
 
 mongoose.model('users', User)
