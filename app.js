@@ -25,6 +25,8 @@ const Goal = mongoose.model('goals')
 require('./models/User');
 const User = mongoose.model('users')
 
+require('./config/passport')(passport)
+
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
@@ -127,14 +129,6 @@ app.delete('/goals/:id', (req, res) => {
     })
 })
 
-app.get('/users/login', (req, res) => {
-  res.render('users/login')
-})
-
-app.get('/users/register', (req, res) => {
-  res.render('users/register')
-})
-
 app.post('/users/register', (req, res) => {
   let errors = [];
 
@@ -189,6 +183,18 @@ app.post('/users/register', (req, res) => {
         }
       })
   }
+})
+
+app.get('/users/login', (req, res) => {
+  res.render('users/login')
+})
+
+app.post('/users/login', (req, res, next) => {
+  passport.authenticate('local', {
+    successRedirect: '/goals',
+    failureRedirect: '/users/login',
+    failureFlash: true
+  })(req, res, next)
 })
 
 app.listen(port, () => {
