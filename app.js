@@ -4,8 +4,9 @@ const mongoose = require('mongoose');
 const session = require('express-session')
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
-const bcrypt = require('bcryptjs')
-const passport = require('passport')
+const bcrypt = require('bcryptjs');
+const passport = require('passport');
+const flash = require('connect-flash')
 
 const app = express();
 
@@ -36,7 +37,21 @@ app.use(session({
   secret: 'secret',
   resave: true,
   saveUninitialized: true
-}))
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+app.use(flash());
+
+app.use(function (req, res, next) {
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
+  res.locals.error = req.flash('error');
+  res.locals.user = req.user || null
+  next();
+})
 
 app.engine('handlebars', exphbs({
   defaultLayout: 'main'
@@ -125,9 +140,15 @@ app.put('/goals/:id', (req, res) => {
 app.delete('/goals/:id', (req, res) => {
   Goal.deleteOne({ _id: req.params.id })
     .then(() => {
+      req.flash('success_msg', 'Goal deleted')
       res.redirect("/goals/index")
     })
 })
+
+app.get('/users/register', (req, res) => {
+  res.render('users/register')
+})
+
 
 app.post('/users/register', (req, res) => {
   let errors = [];
@@ -191,7 +212,7 @@ app.get('/users/login', (req, res) => {
 
 app.post('/users/login', (req, res, next) => {
   passport.authenticate('local', {
-    successRedirect: '/goals',
+    successRedirect: '/goals/index',
     failureRedirect: '/users/login',
     failureFlash: true
   })(req, res, next)

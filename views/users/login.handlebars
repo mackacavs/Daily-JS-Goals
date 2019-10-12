@@ -1,5 +1,9 @@
-<form action="/users/login" method="post">
+{{#if error}}
+<div class="alert alert-danger">{{error}}</div>
 
+{{/if}}
+
+<form action="/users/login" method="post">
   <div class="row">
     <h3 class="col-md-6 offset-md-3 text-center">Login</h3>
 
