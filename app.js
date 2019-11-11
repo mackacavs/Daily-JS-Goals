@@ -226,9 +226,6 @@ app.get('/users/logout', (req, res) => {
   res.redirect('/users/login')
 });
 
-
-
-
 app.listen(port, () => {
   console.log(`App is listening on port ${port}`)
 })
